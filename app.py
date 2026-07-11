@@ -111,57 +111,127 @@ def health():
 # -----------------------------
 # Prediction Route
 # -----------------------------
+# @app.route("/predict", methods=["POST"])
+# def predict():
+
+#     if "image" not in request.files:
+#         return jsonify({
+#             "error": "No image file provided."
+#         }), 400
+
+#     file = request.files["image"]
+
+#     try:
+#         img = Image.open(io.BytesIO(file.read()))
+#     except Exception as e:
+#         return jsonify({
+#             "error": f"Invalid image: {str(e)}"
+#         }), 400
+
+#     x = preprocess(img)
+
+#     probs = model.predict(x, verbose=0)[0]
+
+#     idx = int(np.argmax(probs))
+
+#     label = CLASS_NAMES[idx]
+
+#     confidence = float(probs[idx] * 100)
+
+#     info = severity_map[label]
+
+#     return jsonify({
+
+#         "prediction": label,
+
+#         "confidence": round(confidence, 2),
+
+#         "estimated_severity": info["severity"],
+
+#         "risk_level": info["risk"],
+
+#         "follow_up": info["follow_up"],
+
+#         "probabilities": {
+
+#             CLASS_NAMES[i]: round(float(probs[i]) * 100, 2)
+
+#             for i in range(len(CLASS_NAMES))
+#         }
+
+#     })
+
 @app.route("/predict", methods=["POST"])
 def predict():
 
-    if "image" not in request.files:
-        return jsonify({
-            "error": "No image file provided."
-        }), 400
-
-    file = request.files["image"]
-
     try:
-        img = Image.open(io.BytesIO(file.read()))
-    except Exception as e:
+        print("========== /predict called ==========")
+
+        # Check file
+        if "image" not in request.files:
+            return jsonify({
+                "error": "No image file provided."
+            }), 400
+
+        file = request.files["image"]
+        print("Filename:", file.filename)
+
+        # Read image
+        img = Image.open(file)
+        print("Image mode:", img.mode)
+
+        # Preprocess
+        x = preprocess(img)
+
+        print("Input shape:", x.shape)
+
+        # Print model input shape
+        try:
+            print("Model input shape:", model.input_shape)
+        except Exception:
+            pass
+
+        # Prediction
+        probs = model.predict(x, verbose=0)[0]
+
+        print("Raw probabilities:", probs)
+
+        idx = int(np.argmax(probs))
+
+        label = CLASS_NAMES[idx]
+
+        confidence = float(probs[idx] * 100)
+
+        info = severity_map[label]
+
         return jsonify({
-            "error": f"Invalid image: {str(e)}"
-        }), 400
 
-    x = preprocess(img)
+            "prediction": label,
 
-    probs = model.predict(x, verbose=0)[0]
+            "confidence": round(confidence, 2),
 
-    idx = int(np.argmax(probs))
+            "estimated_severity": info["severity"],
 
-    label = CLASS_NAMES[idx]
+            "risk_level": info["risk"],
 
-    confidence = float(probs[idx] * 100)
+            "follow_up": info["follow_up"],
 
-    info = severity_map[label]
+            "probabilities": {
+                CLASS_NAMES[i]: round(float(probs[i]) * 100, 2)
+                for i in range(len(CLASS_NAMES))
+            }
 
-    return jsonify({
+        })
 
-        "prediction": label,
+    except Exception as e:
 
-        "confidence": round(confidence, 2),
+        import traceback
 
-        "estimated_severity": info["severity"],
+        traceback.print_exc()
 
-        "risk_level": info["risk"],
-
-        "follow_up": info["follow_up"],
-
-        "probabilities": {
-
-            CLASS_NAMES[i]: round(float(probs[i]) * 100, 2)
-
-            for i in range(len(CLASS_NAMES))
-        }
-
-    })
-
-
+        return jsonify({
+            "error": str(e)
+        }), 500
 # -----------------------------
 # Run Flask App
 # -----------------------------
