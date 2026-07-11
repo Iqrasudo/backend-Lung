@@ -22,7 +22,7 @@ MODEL_PATH = hf_hub_download(
 print("Loading model...")
 model = tf.keras.models.load_model(MODEL_PATH, compile=False)
 print("Model loaded successfully!")
-
+print("Model input shape:", model.input_shape)
 # -----------------------------
 # Severity Map
 # -----------------------------
