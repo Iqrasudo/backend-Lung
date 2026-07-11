@@ -7,7 +7,17 @@ import numpy as np
 import io
 
 app = Flask(__name__)
-CORS(app)
+CORS(
+    app,
+    resources={
+        r"/*": {
+            "origins": [
+                "http://localhost:8080"
+            ]
+        }
+    }
+)
+
 
 # -----------------------------
 # Configuration
