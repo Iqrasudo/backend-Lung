@@ -1,0 +1,7 @@
+gradio
+spaces
+tensorflow==2.19.0
+huggingface_hub
+numpy<2
+pillow
+opencv-python-headless
