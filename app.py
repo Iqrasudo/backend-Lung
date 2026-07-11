@@ -162,20 +162,15 @@ def health():
 #     })
 @app.route("/predict", methods=["POST"])
 def predict():
-
-    print("========== /predict called ==========")
-
     try:
+        print("Prediction request received")
 
         if "image" not in request.files:
-            print("No image found")
-            return jsonify({"error": "No image uploaded"}), 400
+            return jsonify({"error": "No image file provided"}), 400
 
         file = request.files["image"]
 
-        print("Filename:", file.filename)
-
-        img = Image.open(file.stream)
+        img = Image.open(io.BytesIO(file.read()))
 
         x = preprocess(img)
 
@@ -186,9 +181,7 @@ def predict():
         print("Probabilities:", probs)
 
         idx = int(np.argmax(probs))
-
         label = CLASS_NAMES[idx]
-
         confidence = float(probs[idx] * 100)
 
         info = severity_map[label]
@@ -206,14 +199,9 @@ def predict():
         })
 
     except Exception as e:
-
         import traceback
-
         traceback.print_exc()
-
-        return jsonify({
-            "error": str(e)
-        }), 500
+        return jsonify({"error": str(e)}), 500
 # -----------------------------
 # Run Flask App
 # -----------------------------
