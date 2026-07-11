@@ -160,41 +160,30 @@ def health():
 #         }
 
 #     })
-
 @app.route("/predict", methods=["POST"])
 def predict():
 
-    try:
-        print("========== /predict called ==========")
+    print("========== /predict called ==========")
 
-        # Check file
+    try:
+
         if "image" not in request.files:
-            return jsonify({
-                "error": "No image file provided."
-            }), 400
+            print("No image found")
+            return jsonify({"error": "No image uploaded"}), 400
 
         file = request.files["image"]
+
         print("Filename:", file.filename)
 
-        # Read image
-        img = Image.open(file)
-        print("Image mode:", img.mode)
+        img = Image.open(file.stream)
 
-        # Preprocess
         x = preprocess(img)
 
         print("Input shape:", x.shape)
 
-        # Print model input shape
-        try:
-            print("Model input shape:", model.input_shape)
-        except Exception:
-            pass
-
-        # Prediction
         probs = model.predict(x, verbose=0)[0]
 
-        print("Raw probabilities:", probs)
+        print("Probabilities:", probs)
 
         idx = int(np.argmax(probs))
 
@@ -205,22 +194,15 @@ def predict():
         info = severity_map[label]
 
         return jsonify({
-
             "prediction": label,
-
             "confidence": round(confidence, 2),
-
             "estimated_severity": info["severity"],
-
             "risk_level": info["risk"],
-
             "follow_up": info["follow_up"],
-
             "probabilities": {
                 CLASS_NAMES[i]: round(float(probs[i]) * 100, 2)
                 for i in range(len(CLASS_NAMES))
             }
-
         })
 
     except Exception as e:
