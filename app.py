@@ -182,50 +182,58 @@ def health():
 @app.route("/predicting", methods=["POST"])
 def predict():
 
-    print("===== PREDICT START =====")
+    print("🔥🔥 ROUTE HIT 🔥🔥")
 
-    try:
-        if "image" not in request.files:
-            print("No image received")
-            return jsonify({"error": "No image file provided"}), 400
+    return jsonify({
+        "test": "backend route working"
+    })
+# @app.route("/predicting", methods=["POST"])
+# def predict():
 
-        file = request.files["image"]
-        print("Image received:", file.filename)
+#     print("===== PREDICT START =====")
 
-        img = Image.open(io.BytesIO(file.read()))
-        print("Image opened:", img.mode, img.size)
+#     try:
+#         if "image" not in request.files:
+#             print("No image received")
+#             return jsonify({"error": "No image file provided"}), 400
 
-        x = preprocess(img)
-        print("Preprocess done:", x.shape)
+#         file = request.files["image"]
+#         print("Image received:", file.filename)
 
-        probs = model.predict(x, verbose=0)[0]
-        print("Prediction done:", probs)
+#         img = Image.open(io.BytesIO(file.read()))
+#         print("Image opened:", img.mode, img.size)
 
-        idx = int(np.argmax(probs))
-        label = CLASS_NAMES[idx]
-        confidence = float(probs[idx] * 100)
+#         x = preprocess(img)
+#         print("Preprocess done:", x.shape)
 
-        info = severity_map[label]
+#         probs = model.predict(x, verbose=0)[0]
+#         print("Prediction done:", probs)
 
-        return jsonify({
-            "prediction": label,
-            "confidence": round(confidence, 2),
-            "estimated_severity": info["severity"],
-            "risk_level": info["risk"],
-            "follow_up": info["follow_up"],
-            "probabilities": {
-                CLASS_NAMES[i]: round(float(probs[i]) * 100, 2)
-                for i in range(len(CLASS_NAMES))
-            }
-        })
+#         idx = int(np.argmax(probs))
+#         label = CLASS_NAMES[idx]
+#         confidence = float(probs[idx] * 100)
 
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
+#         info = severity_map[label]
 
-        return jsonify({
-            "error": str(e)
-        }), 500
+#         return jsonify({
+#             "prediction": label,
+#             "confidence": round(confidence, 2),
+#             "estimated_severity": info["severity"],
+#             "risk_level": info["risk"],
+#             "follow_up": info["follow_up"],
+#             "probabilities": {
+#                 CLASS_NAMES[i]: round(float(probs[i]) * 100, 2)
+#                 for i in range(len(CLASS_NAMES))
+#             }
+#         })
+
+#     except Exception as e:
+#         import traceback
+#         traceback.print_exc()
+
+#         return jsonify({
+#             "error": str(e)
+#         }), 500
 # @app.route("/predicting", methods=["POST"])
 # def predict():
 
