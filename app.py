@@ -170,7 +170,10 @@ def health():
 #         }
 
 #     })
- print("===== PREDICT ROUTE HIT =====")
+@app.route("/predicting", methods=["POST"])
+def predict():
+
+    print("===== PREDICT ROUTE HIT =====")
 
     return jsonify({
         "prediction": "normal",
