@@ -98,11 +98,12 @@ severity_map = {
 #     return img
 def preprocess(img):
 
-    img = img.convert("RGB")
-    img = img.resize((224, 224))
+    img = img.convert("L")   # grayscale
+    img = img.resize((224,224))
 
     img = np.array(img).astype(np.float32) / 255.0
 
+    img = np.expand_dims(img, axis=-1)
     img = np.expand_dims(img, axis=0)
 
     return img
@@ -182,11 +183,82 @@ def health():
 @app.route("/predicting", methods=["POST"])
 def predict():
 
-    print("🔥🔥 ROUTE HIT 🔥🔥")
+    print("===== PREDICT START =====")
 
-    return jsonify({
-        "test": "backend route working"
-    })
+    try:
+
+        if "image" not in request.files:
+            print("No image received")
+            return jsonify({
+                "error":"No image file provided"
+            }),400
+
+
+        file = request.files["image"]
+
+        print("Image received:", file.filename)
+
+
+        img = Image.open(
+            io.BytesIO(file.read())
+        )
+
+        print("Image opened:", img.mode, img.size)
+
+
+        x = preprocess(img)
+
+        print("Preprocess done:", x.shape)
+
+
+        probs = model.predict(
+            x,
+            verbose=0
+        )[0]
+
+
+        print("PROBS:", probs)
+
+
+        idx = int(np.argmax(probs))
+
+        label = CLASS_NAMES[idx]
+
+        confidence = float(probs[idx]*100)
+
+
+        info = severity_map[label]
+
+
+        return jsonify({
+
+            "prediction": label,
+
+            "confidence": round(confidence,2),
+
+            "estimated_severity": info["severity"],
+
+            "risk_level": info["risk"],
+
+            "follow_up": info["follow_up"],
+
+            "probabilities": {
+                CLASS_NAMES[i]:
+                round(float(probs[i])*100,2)
+                for i in range(len(CLASS_NAMES))
+            }
+
+        })
+
+
+    except Exception as e:
+
+        import traceback
+        traceback.print_exc()
+
+        return jsonify({
+            "error":str(e)
+        }),500
 # @app.route("/predicting", methods=["POST"])
 # def predict():
 
