@@ -170,93 +170,20 @@ def health():
 #         }
 
 #     })
-@app.route("/predict", methods=["POST"])
-def predict():
+ print("===== PREDICT ROUTE HIT =====")
 
-    print("===== PREDICT STARTED =====")
-
-    try:
-        if "image" not in request.files:
-            print("No image found")
-            return jsonify({
-                "error": "No image file provided."
-            }), 400
-
-        file = request.files["image"]
-
-        print("Image received:", file.filename)
-
-        # Open image
-        img = Image.open(io.BytesIO(file.read()))
-
-        print("Image opened successfully")
-        print("Original image size:", img.size)
-
-        # Preprocess
-        x = preprocess(img)
-
-        print("Preprocessing completed")
-        print("Input shape:", x.shape)
-
-        # Prediction
-        print("Before model prediction")
-
-        probs = model.predict(x, verbose=0)[0]
-
-        print("After model prediction")
-        print("Probabilities:", probs)
-
-        # Class prediction
-        idx = int(np.argmax(probs))
-
-        label = CLASS_NAMES[idx]
-
-        confidence = float(probs[idx] * 100)
-
-        print("Predicted class:", label)
-        print("Confidence:", confidence)
-
-        info = severity_map[label]
-
-        response = {
-
-            "prediction": label,
-
-            "confidence": round(confidence, 2),
-
-            "estimated_severity": info["severity"],
-
-            "risk_level": info["risk"],
-
-            "follow_up": info["follow_up"],
-
-            "probabilities": {
-
-                CLASS_NAMES[i]: round(float(probs[i]) * 100, 2)
-
-                for i in range(len(CLASS_NAMES))
-
-            }
+    return jsonify({
+        "prediction": "normal",
+        "confidence": 99.9,
+        "estimated_severity": "No Disease",
+        "risk_level": "Low",
+        "follow_up": "Backend test successful",
+        "probabilities": {
+            "covid19": 0.1,
+            "normal": 99.8,
+            "pneumonia": 0.1
         }
-
-        print("Response generated successfully")
-        print("===== PREDICT END =====")
-
-        return jsonify(response)
-
-
-    except Exception as e:
-
-        import traceback
-
-        print("ERROR OCCURRED")
-        traceback.print_exc()
-
-        return jsonify({
-
-            "error": str(e)
-
-        }), 500
+    })
 # -----------------------------
 # Run Flask App
 # -----------------------------
