@@ -85,18 +85,27 @@ severity_map = {
 # -----------------------------
 # Image Preprocessing
 # -----------------------------
+# def preprocess(img):
+
+#     img = img.convert("L")          # grayscale
+#     img = img.resize((224, 224))
+
+#     img = np.array(img).astype(np.float32) / 255.0
+
+#     img = np.expand_dims(img, axis=-1)
+#     img = np.expand_dims(img, axis=0)
+
+#     return img
 def preprocess(img):
 
-    img = img.convert("L")          # grayscale
+    img = img.convert("RGB")
     img = img.resize((224, 224))
 
     img = np.array(img).astype(np.float32) / 255.0
 
-    img = np.expand_dims(img, axis=-1)
     img = np.expand_dims(img, axis=0)
 
     return img
-
 # -----------------------------
 # Home Route
 # -----------------------------
