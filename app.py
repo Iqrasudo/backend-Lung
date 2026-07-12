@@ -7,16 +7,15 @@ import numpy as np
 import io
 
 app = Flask(__name__)
-CORS(
-    app,
-    resources={
-        r"/*": {
-            "origins": [
-                "http://localhost:8080"
-            ]
-        }
+
+# ✅ CORS کو تمام origins کے لیے allow کریں
+CORS(app, resources={
+    r"/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
     }
-)
+})
 
 
 # -----------------------------
@@ -85,17 +84,6 @@ severity_map = {
 # -----------------------------
 # Image Preprocessing
 # -----------------------------
-# def preprocess(img):
-
-#     img = img.convert("L")          # grayscale
-#     img = img.resize((224, 224))
-
-#     img = np.array(img).astype(np.float32) / 255.0
-
-#     img = np.expand_dims(img, axis=-1)
-#     img = np.expand_dims(img, axis=0)
-
-#     return img
 def preprocess(img):
 
     img = img.convert("L")   # grayscale
@@ -107,6 +95,7 @@ def preprocess(img):
     img = np.expand_dims(img, axis=0)
 
     return img
+
 # -----------------------------
 # Home Route
 # -----------------------------
@@ -131,56 +120,7 @@ def health():
 # -----------------------------
 # Prediction Route
 # -----------------------------
-# @app.route("/predicting", methods=["POST"])
-# def predict():
-
-#     if "image" not in request.files:
-#         return jsonify({
-#             "error": "No image file provided."
-#         }), 400
-
-#     file = request.files["image"]
-
-#     try:
-#         img = Image.open(io.BytesIO(file.read()))
-#     except Exception as e:
-#         return jsonify({
-#             "error": f"Invalid image: {str(e)}"
-#         }), 400
-
-#     x = preprocess(img)
-
-#     probs = model.predict(x, verbose=0)[0]
-
-#     idx = int(np.argmax(probs))
-
-#     label = CLASS_NAMES[idx]
-
-#     confidence = float(probs[idx] * 100)
-
-#     info = severity_map[label]
-
-#     return jsonify({
-
-#         "prediction": label,
-
-#         "confidence": round(confidence, 2),
-
-#         "estimated_severity": info["severity"],
-
-#         "risk_level": info["risk"],
-
-#         "follow_up": info["follow_up"],
-
-#         "probabilities": {
-
-#             CLASS_NAMES[i]: round(float(probs[i]) * 100, 2)
-
-#             for i in range(len(CLASS_NAMES))
-#         }
-
-#     })
-@app.route("/predicting", methods=["POST"])
+@app.route("/predicting", methods=["POST", "OPTIONS"])
 def predict():
 
     print("===== PREDICT START =====")
@@ -259,70 +199,7 @@ def predict():
         return jsonify({
             "error":str(e)
         }),500
-# @app.route("/predicting", methods=["POST"])
-# def predict():
 
-#     print("===== PREDICT START =====")
-
-#     try:
-#         if "image" not in request.files:
-#             print("No image received")
-#             return jsonify({"error": "No image file provided"}), 400
-
-#         file = request.files["image"]
-#         print("Image received:", file.filename)
-
-#         img = Image.open(io.BytesIO(file.read()))
-#         print("Image opened:", img.mode, img.size)
-
-#         x = preprocess(img)
-#         print("Preprocess done:", x.shape)
-
-#         probs = model.predict(x, verbose=0)[0]
-#         print("Prediction done:", probs)
-
-#         idx = int(np.argmax(probs))
-#         label = CLASS_NAMES[idx]
-#         confidence = float(probs[idx] * 100)
-
-#         info = severity_map[label]
-
-#         return jsonify({
-#             "prediction": label,
-#             "confidence": round(confidence, 2),
-#             "estimated_severity": info["severity"],
-#             "risk_level": info["risk"],
-#             "follow_up": info["follow_up"],
-#             "probabilities": {
-#                 CLASS_NAMES[i]: round(float(probs[i]) * 100, 2)
-#                 for i in range(len(CLASS_NAMES))
-#             }
-#         })
-
-#     except Exception as e:
-#         import traceback
-#         traceback.print_exc()
-
-#         return jsonify({
-#             "error": str(e)
-#         }), 500
-# @app.route("/predicting", methods=["POST"])
-# def predict():
-
-#     print("===== PREDICT ROUTE HIT =====")
-
-#     return jsonify({
-#         "prediction": "normal",
-#         "confidence": 99.9,
-#         "estimated_severity": "No Disease",
-#         "risk_level": "Low",
-#         "follow_up": "Backend test successful",
-#         "probabilities": {
-#             "covid19": 0.1,
-#             "normal": 99.8,
-#             "pneumonia": 0.1
-#         }
-#     })
 # -----------------------------
 # Run Flask App
 # -----------------------------
