@@ -7,24 +7,9 @@ import numpy as np
 import io
 
 app = Flask(__name__)
-
-# ✅ CORS کو تمام origins کے لیے allow کریں
-CORS(app, 
-     supports_credentials=True,
-     methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"],
-     allow_headers=["Content-Type", "Authorization"])
+CORS(app)
 
 
-# Manual CORS handler for preflight
-@app.before_request
-def handle_preflight():
-    if request.method == "OPTIONS":
-        response = jsonify({'status': 'ok'})
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-        response.headers.add('Access-Control-Max-Age', '3600')
-        return response, 200
 
 
 # -----------------------------
