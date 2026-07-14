@@ -95,11 +95,12 @@ severity_map = {
 # -----------------------------
 def preprocess(img):
 
-    img = img.convert("RGB")
+    img = img.convert("L")   # Grayscale
     img = img.resize((224,224))
 
     img = np.array(img).astype(np.float32) / 255.0
 
+    img = np.expand_dims(img, axis=-1)
     img = np.expand_dims(img, axis=0)
 
     return img
