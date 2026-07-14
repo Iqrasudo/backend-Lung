@@ -79,7 +79,7 @@ severity_map = {
 # Image Preprocessing
 # -----------------------------
 def preprocess(img):
-
+    print("prepocessing..!")
     img = img.convert("L")   # Grayscale
     img = img.resize((224,224))
 
@@ -116,7 +116,9 @@ def health():
 # -----------------------------
 @app.route("/predicting", methods=["POST", "OPTIONS"])
 def predict():
-
+    print("MODEL INPUT:", model.input_shape)
+    print("IMAGE SHAPE:", img.shape)
+    print("IMAGE MIN MAX:", img.min(), img.max())
     print("===== PREDICT START =====")
 
     try:
